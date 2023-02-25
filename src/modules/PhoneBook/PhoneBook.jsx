@@ -1,23 +1,20 @@
-import { useState, useEffect } from 'react';
-import { nanoid } from 'nanoid';
+import { useSelector, useDispatch } from 'react-redux';
+import { NotificationManager } from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
+import { addContact, deleteContact } from 'redux/contacts/contacts-actions';
+import { getFilterContacts } from 'redux/contacts/contacts-selectors';
+import { setFilter } from 'redux/filter/filter-actions';
+import { getFilter } from 'redux/filter/filter-selectors';
 import Section from 'shared/components/Section/Section';
 import Filter from 'modules/Filter/Filter';
 import ContactForm from 'modules/ContactForm/ContactForm';
 import ContactList from 'modules/ContactList/ContactList';
 import { Box, ManeBox } from './PhoneBook.staled';
-import items from 'modules/items';
 
 const PhoneBook = () => {
-  const [contacts, setContacts] = useState(() => {
-    const contacts = JSON.parse(localStorage.getItem('contacts'));
-    return contacts ? contacts : [...items];
-  });
-
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
+  const contacts = useSelector(getFilterContacts);
+  const filter = useSelector(getFilter);
+  const dispatch = useDispatch();
 
   const formSubmit = ({ name, number }) => {
     if (
@@ -25,43 +22,24 @@ const PhoneBook = () => {
         contact => name.toLowerCase() === contact.name.toLowerCase()
       )
     ) {
-      alert(`${name} is already in contacts.`);
+      NotificationManager.info(`${name} is already in contacts.`);
       return;
     }
 
-    setContacts(prevContacts => {
-      const contact = {
-        id: nanoid(),
-        name,
-        number,
-      };
-      return [contact, ...prevContacts];
-    });
+    const action = addContact({ name, number });
+    dispatch(action);
   };
 
-  const deleteContact = contactId => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== contactId)
-    );
+  const onDeleteContact = id => {
+    const action = deleteContact(id);
+    dispatch(action);
   };
 
   const findByName = e => {
-    setFilter(e.currentTarget.value);
+    dispatch(setFilter(e.currentTarget.value));
   };
 
-  const showFilterContacts = () => {
-    if (!filter) {
-      return contacts;
-    }
-    const normalizedFilter = filter.toLowerCase();
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
-    );
-  };
-
-  const onBlur = () => setFilter('');
-
-  const visibleContacts = showFilterContacts();
+  const onBlur = () => dispatch(setFilter(''));
 
   return (
     <ManeBox>
@@ -76,10 +54,7 @@ const PhoneBook = () => {
             value={filter}
             text="Find contacts by name"
           />
-          <ContactList
-            contacts={visibleContacts}
-            onDeleteContact={deleteContact}
-          />
+          <ContactList contacts={contacts} onDeleteContact={onDeleteContact} />
         </Box>
       </Section>
     </ManeBox>
