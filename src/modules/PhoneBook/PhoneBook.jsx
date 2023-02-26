@@ -1,9 +1,9 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
-import { addContact, deleteContact } from 'redux/contacts/contacts-actions';
+import { addContact, deleteContact } from 'redux/contacts/contacts-slice';
 import { getFilterContacts } from 'redux/contacts/contacts-selectors';
-import { setFilter } from 'redux/filter/filter-actions';
+import { setFilter } from 'redux/filter/filter-slice';
 import { getFilter } from 'redux/filter/filter-selectors';
 import Section from 'shared/components/Section/Section';
 import Filter from 'modules/Filter/Filter';
