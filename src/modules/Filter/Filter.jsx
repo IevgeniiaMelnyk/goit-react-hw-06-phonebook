@@ -1,7 +1,19 @@
+import { useSelector, useDispatch } from 'react-redux';
+import { getFilter } from 'redux/filter/filter-selectors';
+import { setFilter } from '../../redux/filter/filter-slice';
 import PropTypes from 'prop-types';
 import { Input, Label } from './Filter.styled';
 
-const Filter = ({ onBlur, onChange, value, text }) => {
+const Filter = ({ text }) => {
+  const filter = useSelector(getFilter);
+  const dispatch = useDispatch();
+
+  const findByName = e => {
+    dispatch(setFilter(e.currentTarget.value));
+  };
+
+  const onBlur = () => dispatch(setFilter(''));
+
   return (
     <>
       <Label>
@@ -10,8 +22,8 @@ const Filter = ({ onBlur, onChange, value, text }) => {
           type="text"
           name="filter"
           placeholder="Name"
-          value={value}
-          onChange={onChange}
+          value={filter}
+          onChange={findByName}
           onBlur={onBlur}
         ></Input>
       </Label>
@@ -22,8 +34,5 @@ const Filter = ({ onBlur, onChange, value, text }) => {
 export default Filter;
 
 Filter.propTypes = {
-  onBlur: PropTypes.func.isRequired,
-  onChange: PropTypes.func.isRequired,
-  value: PropTypes.string.isRequired,
   text: PropTypes.string.isRequired,
 };
